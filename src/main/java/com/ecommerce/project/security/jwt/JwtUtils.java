@@ -1,5 +1,6 @@
 package com.ecommerce.project.security.jwt;
 
+import com.ecommerce.project.security.services.JwtBlackListService;
 import com.ecommerce.project.security.services.UserDetailsImplementation;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -9,11 +10,15 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.Null;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
@@ -32,6 +37,9 @@ public class JwtUtils {
 
     @Value("${spring.app.jwtCookieName}")
     private String jwtCookie;
+
+    @Autowired
+    private JwtBlackListService jwtBlackListService;
 
 //    public String getJwtFromHeader(HttpServletRequest request){
 //        String bearerToken = request.getHeader("Authorization");
@@ -58,9 +66,13 @@ public class JwtUtils {
         return cookie;
     }
 
-    public ResponseCookie getCleanJwtCookie() {
-        ResponseCookie cookie = ResponseCookie.from(jwtCookie,null).path("api").build();
-        return cookie;
+    public void getCleanJwtCookie(HttpServletResponse response) {
+        ResponseCookie cookie = ResponseCookie.from("springBootEcom", "")
+                .path("/api")
+                .httpOnly(true)
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     public String generateTokenFromUsername(String username) {
@@ -100,5 +112,17 @@ public class JwtUtils {
             logger.error("JWT claim string is empty : {}", e.getMessage());
         }
         return false;
+    }
+
+    public void logout(String token){
+        jwtBlackListService.addJwtToBlackList(token);
+        System.out.println("logout jwt token: " + token);
+        SecurityContextHolder.clearContext();
+    }
+
+    public boolean isTokenInBlackList(String token){
+        System.out.println("isTokenVaild token: " + token);
+        System.out.println(jwtBlackListService.isJwtInBlackList(token));
+        return jwtBlackListService.isJwtInBlackList(token);
     }
 }

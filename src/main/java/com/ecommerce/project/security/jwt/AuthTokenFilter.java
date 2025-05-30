@@ -1,6 +1,7 @@
 package com.ecommerce.project.security.jwt;
 
 
+import com.ecommerce.project.exception.APIException;
 import com.ecommerce.project.security.services.UserDetailsServiceImplementation;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,12 +41,20 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             if(jwt != null && jwtUtils.validateToken(jwt)) {
                 String username = jwtUtils.getUsernameFromToken(jwt);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                logger.debug("Roles from JWT: {}", userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                if(!jwtUtils.isTokenInBlackList(jwt)){
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    logger.debug("Roles from JWT: {}", userDetails.getAuthorities());
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else{
+                    throw new APIException("Token失效 請重新申請");
+                }
             }
+        } catch (APIException e) {
+            logger.error("Token失效:{}", e.getMessage());
+            request.setAttribute("authErrorMessage", e.getMessage());
+            throw new InsufficientAuthenticationException("Token已失效，請重新登入");
         } catch (Exception e){
             logger.error("Cannot set user authentication: {}", e.getMessage());
         }

@@ -12,6 +12,8 @@ import com.ecommerce.project.security.request.SignupRequest;
 import com.ecommerce.project.security.response.MessageResponse;
 import com.ecommerce.project.security.response.UserInfoResponse;
 import com.ecommerce.project.security.services.UserDetailsImplementation;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -155,8 +157,20 @@ public class AuthController {
     }
 
     @PostMapping("/signout")
-    public ResponseEntity<?> signoutUser() {
-        ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new MessageResponse("Signed out successfully!"));
+    public ResponseEntity<?> signoutUser(HttpServletResponse response) {
+//        ResponseCookie cookie = jwtUtils.getCleanJwtCookie(response);
+        jwtUtils.getCleanJwtCookie(response);
+//        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new MessageResponse("Signed out successfully!"));
+        return ResponseEntity.ok().body(new MessageResponse("Logged out successfully!"));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@CookieValue(name = "springBootEcom", required = false) String token,HttpServletResponse response) {
+        if(token != null){
+            System.out.println(token);
+            jwtUtils.logout(token);
+            jwtUtils.getCleanJwtCookie(response);
+        }
+        return ResponseEntity.ok().body(new MessageResponse("登出成功!"));
     }
 }
