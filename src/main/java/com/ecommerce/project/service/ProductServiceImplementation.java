@@ -32,18 +32,28 @@ import java.util.List;
 public class ProductServiceImplementation implements ProductService {
     @Autowired
     private ModelMapper modelMapper;
+
     @Autowired
     private ProductRepository productRepository;
+
     @Autowired
     private CategoryRepository categoryRepository;
+
     @Autowired
     private FileService fileService;
+
     @Value("${project.image}")
     private String path;
+
+    @Value("${image.base.url}")
+    private String imageBaseUrl;
+
     @Autowired
     private CartRepository cartRepository;
+
     @Autowired
     private CartService cartService;
+
     @Autowired
     private EntityManager entityManager;
     /**
@@ -93,7 +103,11 @@ public class ProductServiceImplementation implements ProductService {
         if (products.isEmpty()) {
             throw new APIException("No products found");
         }
-        List<ProductDTO> productDTOS = products.stream().map(product -> modelMapper.map(product,ProductDTO.class)).toList();
+        List<ProductDTO> productDTOS = products.stream().map(product -> {
+            ProductDTO productDTO = modelMapper.map(product,ProductDTO.class);
+            productDTO.setImage(constructImageUrl(product.getImage()));
+            return productDTO;
+        }).toList();
         return new ProductResponse(productDTOS,pageProducts.getNumber(),pageProducts.getSize(), pageProducts.getTotalElements(), pageProducts.getTotalPages(), pageProducts.isLast());
     }
 
@@ -211,6 +225,10 @@ public class ProductServiceImplementation implements ProductService {
         Product saveProduct = productRepository.save(productFromDb);
         //return
         return modelMapper.map(saveProduct,ProductDTO.class);
+    }
+
+    private String constructImageUrl(String imageName){
+        return imageBaseUrl.endsWith("/") ?  imageBaseUrl + imageName : imageBaseUrl + "/" + imageName;
     }
 
 }
