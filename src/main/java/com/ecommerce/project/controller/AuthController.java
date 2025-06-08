@@ -156,16 +156,16 @@ public class AuthController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("/signout")
-    public ResponseEntity<?> signoutUser(HttpServletResponse response) {
+//    @PostMapping("/signout")
+//    public ResponseEntity<?> signoutUser(HttpServletResponse response) {
 //        ResponseCookie cookie = jwtUtils.getCleanJwtCookie(response);
-        jwtUtils.getCleanJwtCookie(response);
+//        jwtUtils.getCleanJwtCookie(response);
 //        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new MessageResponse("Signed out successfully!"));
-        return ResponseEntity.ok().body(new MessageResponse("Logged out successfully!"));
-    }
+//        return ResponseEntity.ok().body(new MessageResponse("Logged out successfully!"));
+//    }
 
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(@CookieValue(name = "springBootEcom", required = false) String token,HttpServletResponse response) {
+    @PostMapping("/signout")
+    public ResponseEntity<?> signout(@CookieValue(name = "springBootEcom", required = false) String token,HttpServletResponse response) {
         if(token != null){
             System.out.println(token);
             jwtUtils.logout(token);

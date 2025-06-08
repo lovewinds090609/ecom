@@ -40,7 +40,7 @@ public class CategoryController {
     @GetMapping("/public/categories")
     public ResponseEntity<CategoryResponse> getCategories(
             @RequestParam(name = "pageNumber",defaultValue = AppConstant.PAGE_NUMBER) Integer pageNumber,
-            @RequestParam(name = "pageSize",defaultValue = AppConstant.PAGE_SIZE) Integer pageSize,
+            @RequestParam(name = "pageSize",defaultValue = AppConstant.CATEGORY_PAGE_SIZE) Integer pageSize,
             @RequestParam(name = "sortBy",defaultValue = AppConstant.SORT_CATEGORIES_BY) String sortBy,
             @RequestParam(name = "sortOrder",defaultValue = AppConstant.SORT_DIR) String sortOrder)
     {
