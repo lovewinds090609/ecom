@@ -2,8 +2,9 @@
 
 ##  專案簡介
 
-使用 Java + Spring Boot 開發的電商後端 API，支援使用者認證、商品管理、購物車、訂單、地址管理等功能。  
-目前已整合 PostgreSQL 作為資料庫，並透過 Swagger 提供互動式 API 文件。
+使用 Java + Spring Boot 開發的電商後端 API  
+支援使用者認證、商品管理、購物車、訂單、地址管理等功能  
+目前已整合 PostgreSQL 作為資料庫，並透過 Swagger 提供互動式 API 文件
 
 ## 技術棧
 
