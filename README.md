@@ -13,6 +13,7 @@
 - Spring Data JPA
 - Spring Security + JWT
 - PostgreSQL
+- Redis
 - Swagger
 - Maven
 - Lombok
